@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,10 +35,10 @@ public class UrlShorteningController {
 	}
 
 	@PostMapping
-	public HashMap<String, Object> postShortUrl(@RequestBody ShortUrl shorturl) {
+	public HashMap<String, Object> postShortUrl(@RequestBody ShortUrl shorturl,HttpServletRequest req) {
 		ShortUrl shorturlCreated = shortUrlService.createShortUrl(shorturl);
 		response = new HashMap<String, Object>();
-		response.put("ShortUrl", "http://localhost:8080/"+shorturlCreated.getHash());
+		response.put("ShortUrl", "http://"+req.getHeader("Host")+"/"+shorturlCreated.getHash());
 		response.put("LongUrl", shorturlCreated.getLongurl());
 		response.put("Lob", shorturlCreated.getLob());
 		response.put("Id", shorturlCreated.getId());
@@ -45,14 +47,14 @@ public class UrlShorteningController {
 	}
 
 	@GetMapping(path = "{hash}")
-	public HashMap<String, Object> getLongUrl(@PathVariable String hash) {
+	public HashMap<String, Object> getLongUrl(@PathVariable String hash,HttpServletRequest req) {
 		Optional<ShortUrl> result = shortUrlService.getByHash(hash);
 		if (shortUrlService.getByHash(hash).isPresent()) {
 			response = new HashMap<String, Object>();
 			response.put("Hash", result.get().getHash());
 			response.put("LongUrl", result.get().getLongurl());
 			response.put("Lob", result.get().getLob());
-			response.put("shortUrl", "http://localhost:8080/" + result.get().getHash());
+			response.put("shortUrl", "http://"+req.getHeader("Host")+"/"+result.get().getHash());
 			return response;
 		} else {
 			return null;

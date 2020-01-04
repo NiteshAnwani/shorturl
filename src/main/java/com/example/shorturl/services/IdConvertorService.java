@@ -7,12 +7,15 @@ import com.example.shorturl.dao.ShortUrlDaoBasic;
 
 @Service
 public class IdConvertorService {
-	
+
 	@Autowired
 	ShortUrlDaoBasic shorturldao;
-	
-	public String getUrl(String hash)
-	{
-		return shorturldao.findByHash(hash).get().getLongurl();
+
+	public String getUrl(String hash) {
+		if (shorturldao.findByHash(hash).isPresent()) {
+			return shorturldao.findByHash(hash).get().getLongurl();
+		} else {
+			return null;
+		}
 	}
 }
